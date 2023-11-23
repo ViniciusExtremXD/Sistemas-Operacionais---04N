@@ -1,54 +1,63 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-/*############################################
-            VERIFICANDO ENTRADA
-#############################################*/
-int InteiroValido(const char* prompt) {
-    int value;
-    while (1) {
-        printf("%s", prompt);
-        if (scanf("%d", &value) == 1) {
-            return value;
-        } else {
-            printf("\nEntrada inválida. Por favor, digite um número inteiro.\n");
-            while (getchar() != '\n');
-        }
-    }
-}
+#define MAX_USERS 100000
 
-/*############################################
-            IMPLEMENTANDO O MAIN
-#############################################*/
-int main() {
-    int N, i;
-    // Último momento em que a escada rolante está ocupada
-    int ultimoMomento = 0;
+typedef struct {
+    int arrivalTime;
+    int direction;
+} Person;
 
-    // Obtendo o número de pessoas
-    N = InteiroValido("Digite o número de pessoas (N): ");
+// Função para simular a escada rolante
+int simulateEscalator(Person persons[], int n) {
+    int leftExitTime = 0;
+    int rightExitTime = 0;
 
-    for(i = 0; i < N; i++) {
-        int e, d;
-        // Obtendo o momento de chegada e a direção para cada pessoa
-        char prompt[100];
-        sprintf(prompt, "Digite o momento de chegada (e) e a direção (d) da pessoa %d (separados por espaço): ", i+1);
-        while (1) {
-            printf("%s", prompt);
-            if (scanf("%d %d", &e, &d) == 2) {
-                break;
+    for (int i = 0; i < n; i++) {
+        if (persons[i].direction == 0) {
+            // Pessoa quer ir da esquerda para a direita
+            if (persons[i].arrivalTime >= leftExitTime) {
+                leftExitTime = persons[i].arrivalTime + 10;
             } else {
-                printf("Entrada inválida. Por favor, digite dois números inteiros separados por espaço.\n");
-                // Limpar o buffer de entrada
-                while (getchar() != '\n');
+                leftExitTime += 10;
+            }
+        } else {
+            // Pessoa quer ir da direita para a esquerda
+            if (persons[i].arrivalTime >= rightExitTime) {
+                rightExitTime = persons[i].arrivalTime + 10;
+            } else {
+                rightExitTime += 10;
             }
         }
-        // Adicionando 10 segundos ao momento de chegada (tempo para atravessar a escada)
-        ultimoMomento = e + 10;
     }
 
-    // Imprimindo o último momento em que a escada para
-    printf("\nO último momento em que a escada para é: %d\n", ultimoMomento);
+    // O tempo final será o máximo entre as saídas das duas direções
+    return leftExitTime > rightExitTime ? leftExitTime : rightExitTime;
+}
 
-    return 0;
+int main() {
+    int n;
+    Person persons[MAX_USERS];
+
+    printf("Digite o número de usuários (1-100000): ");
+    if (scanf("%d", &n) != 1 || n < 1 || n > MAX_USERS) {
+        printf("Número inválido de usuários. Por favor, insira um número entre 1 e 100000.\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("Digite os tempos de chegada e direções (0 para esquerda, 1 para direita) para cada usuário:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Usuário %d: ", i + 1);
+        if (scanf("%d %d", &persons[i].arrivalTime, &persons[i].direction) != 2 ||
+            persons[i].arrivalTime < 1 || persons[i].direction < 0 || persons[i].direction > 1) {
+            printf("Entrada inválida. Por favor, insira um tempo positivo e 0 ou 1 para a direção.\n");
+            return EXIT_FAILURE;
+        }
+    }
+
+    int lastTime = simulateEscalator(persons, n);
+    printf("A última pessoa sairá da escada rolante no tempo: %d\n", lastTime);
+
+    return EXIT_SUCCESS;
 }
 
