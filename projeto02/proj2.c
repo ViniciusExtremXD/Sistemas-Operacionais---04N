@@ -1,63 +1,109 @@
+/*
+Davi Rodrigues - 32266960
+Matheus Mendes - 32261527
+Vinícius Magno - 32223201
+*/
+
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
-#define MAX_USERS 100000
-
-typedef struct {
-    int arrivalTime;
-    int direction;
-} Person;
-
-// Função para simular a escada rolante
-int simulateEscalator(Person persons[], int n) {
-    int leftExitTime = 0;
-    int rightExitTime = 0;
-
-    for (int i = 0; i < n; i++) {
-        if (persons[i].direction == 0) {
-            // Pessoa quer ir da esquerda para a direita
-            if (persons[i].arrivalTime >= leftExitTime) {
-                leftExitTime = persons[i].arrivalTime + 10;
-            } else {
-                leftExitTime += 10;
-            }
+/*############################################
+            VERIFICANDO ENTRADA
+#############################################*/
+int InteiroValido(const char* prompt) {
+    int value;
+    while (1) {
+        printf("%s", prompt);
+        if (scanf("%d", &value) == 1) {
+            return value;
         } else {
-            // Pessoa quer ir da direita para a esquerda
-            if (persons[i].arrivalTime >= rightExitTime) {
-                rightExitTime = persons[i].arrivalTime + 10;
-            } else {
-                rightExitTime += 10;
-            }
+            printf("\nEntrada inválida. Por favor, digite um número inteiro.\n");
+            while (getchar() != '\n');
         }
     }
-
-    // O tempo final será o máximo entre as saídas das duas direções
-    return leftExitTime > rightExitTime ? leftExitTime : rightExitTime;
 }
 
-int main() {
-    int n;
-    Person persons[MAX_USERS];
+/*##################################################
+    PROCESSANDO A ENTRADA FORNECIDA PELO USUÁRIO
+####################################################*/
+void ProcessarEntradaInterativa() {
+    int N, i;
+    int ultimoMomento = 0;
+    N = InteiroValido("Digite o número de pessoas (N): ");
 
-    printf("Digite o número de usuários (1-100000): ");
-    if (scanf("%d", &n) != 1 || n < 1 || n > MAX_USERS) {
-        printf("Número inválido de usuários. Por favor, insira um número entre 1 e 100000.\n");
-        return EXIT_FAILURE;
-    }
-
-    printf("Digite os tempos de chegada e direções (0 para esquerda, 1 para direita) para cada usuário:\n");
-    for (int i = 0; i < n; i++) {
-        printf("Usuário %d: ", i + 1);
-        if (scanf("%d %d", &persons[i].arrivalTime, &persons[i].direction) != 2 ||
-            persons[i].arrivalTime < 1 || persons[i].direction < 0 || persons[i].direction > 1) {
-            printf("Entrada inválida. Por favor, insira um tempo positivo e 0 ou 1 para a direção.\n");
-            return EXIT_FAILURE;
+    for(i = 0; i < N; i++) {
+        int e, d;
+        printf("Digite o momento de chegada (e) e a direção (d) da pessoa %d (separados por espaço): ", i+1);
+        scanf("%d %d", &e, &d);
+        if (e + 10 > ultimoMomento) {
+            ultimoMomento = e + 10;
         }
     }
 
-    int lastTime = simulateEscalator(persons, n);
-    printf("A última pessoa sairá da escada rolante no tempo: %d\n", lastTime);
+    printf("O último momento em que a escada para é: %d\n", ultimoMomento);
+}
 
-    return EXIT_SUCCESS;
+/*#########################################################
+      PROCESSANDO A ENTRADA A PARTIR DE UM ARQUIVO.TXT
+###########################################################*/
+void ProcessarEntradaArquivo(const char *nomeArquivo) {
+    FILE *file;
+    int N, i;
+    int ultimoMomento = 0;
+
+    file = fopen(nomeArquivo, "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    fscanf(file, "%d", &N);
+
+    for(i = 0; i < N; i++) {
+        int e, d;
+        fscanf(file, "%d %d", &e, &d);
+        if (e + 10 > ultimoMomento) {
+            ultimoMomento = e + 10;
+        }
+    }
+
+    fclose(file);
+
+    printf("O último momento em que a escada para é: %d\n", ultimoMomento);
+}
+
+/*############################################
+            IMPLEMENTANDO O MAIN
+#############################################*/
+int main() {
+    int escolha;
+    char nomeArquivo[100];
+
+    while (1) {
+        printf("\nEscolha o método de entrada:\n");
+        printf("\n1. Entrada interativa\n");
+        printf("2. Ler de um arquivo\n");
+        printf("3. Sair do programa\n");
+        printf("\nDigite sua escolha (1, 2 ou 3): ");
+        scanf("%d", &escolha);
+
+        switch (escolha) {
+            case 1:
+                ProcessarEntradaInterativa();
+                break;
+            case 2:
+                printf("Digite o nome do arquivo: ");
+                scanf("%s", nomeArquivo);
+                ProcessarEntradaArquivo(nomeArquivo);
+                break;
+            case 3:
+                printf("Encerrando o programa.\n");
+                return 0;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+        }
+    }
+
+    return 0;
 }
 
