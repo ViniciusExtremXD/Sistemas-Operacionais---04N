@@ -3,80 +3,100 @@ Matheus Mendes - 32261527
 Vinícius Magno - 32223201
 
 ############################################
-	IMPLEMENTAÇÃO DO CÓDIGO
+        IMPLEMENTAÇÃO DO CÓDIGO
 ############################################
 
-O código fornece para o usuário um meu permitindo a realização do cálculo a partir de um arquivo ou de forma iterativa. Para sair do menu, deve inserir a opção 3, sair.
+Este código implementa um programa que permite ao usuário calcular 
+o último momento em que uma escada rolante estará ocupada. O programa 
+oferece duas opções de entrada: iterativa e por arquivo. Para sair do menu, 
+o usuário pode inserir a opção 3, "Sair".
 
-Em seguida, para cada pessoa, o código solicita o momento de chegada (e) e a direção (d) desejada. A direção (d) é lida, mas não afeta o resultado final, pois o tempo para atravessar a escada é o mesmo em ambas as direções.
-O código verifica se a entrada para e e d é válida, similar à verificação feita para N.
+ENTRADA DE DADOS: 
+Os usuários podem inserir dados manualmente (modo iterativo) ou carregar de um arquivo. 
+Cada entrada consiste no tempo de chegada (tempoChegada) e na direção desejada (direcao) do usuário da escada rolante. 
+Notavelmente, a direção é registrada mas não influencia o cálculo, já que o tempo de travessia é idêntico em ambas as direções.
 
-Por fim, o código então calcula o ultimoMomento, que é o último momento em que a escada rolante está ocupada. Para isso, ele adiciona 10 segundos (tempo para atravessar a escada) ao momento de chegada de cada pessoa. 
+VERIFICAÇÃO DE VALDADE: 
+O programa assegura que tanto o tempo de chegada quanto a direção sejam entradas válidas, 
+seguindo o mesmo princípio de verificação aplicado ao número de usuários (N).
 
-A saída retorna para o usuário o último momento que a escada rolante para.
+TEMPO FINAL DE USO: 
+A lógica central do programa envolve adicionar 10 segundos ao tempo de chegada de cada usuário. 
+A partir disso, o programa verifica as condições de uso da escada, determinando os momentos em que estará ocupada ou livre.
+
+SAÍDA DO PROGRAMA: 
+Após o processamento dos dados, o programa exibe o último momento em que a escada rolante estará ocupada.
+
+
+#################################
+        LÓGICA DO CÓDIGO
+#################################
+
+O código está organizado pelas seguintes partes: 
+
+PROCESSAMENTO DA ESCADA - processarUsoEscada:
+Ela recebe a quantidade de usuários e um array de estruturas Usuario, cada uma contendo o tempo de chegada e a direção do usuário. 
+A função calcula o último momento em que a escada está ocupada, considerando seu tempo de uso e as mudanças de direção.
+
+ENTRADA DE DADOS - entradaInterativa e entradaArquivo:
+- Entrada Interativa: Permite que o usuário insira os tempos de chegada e as direções dos usuários de forma interativa. 
+Faz a validação das entradas e, chama a função processarUsoEscada para calcular o tempo final de ocupação da escada.
+
+- Entrada por Arquivo: Lê  o N° de pessoas, os tempos de chegada e as direções dos usuários a partir de um arquivo de texto. 
+Posteriormente, também invoca a função processarUsoEscada para determinar o tempo final de ocupação da escada.
+
+
+#################################
+        LÓGICA DO CÁLCULO
+#################################
+
+A lógica do cálculo é baseada nas seguintes premissas:
+Tempo de Travessia: A escada rolante leva 10 segundos para transportar uma pessoa de um lado ao outro.
+Cálculo de Saída: Quando uma pessoa entra na escada no momentoT, ela completará a travessia no momento T+10 segundos.
+
+CONTROLE DE FLUXO: 
+- É considerado que novos usuários não chegam exatamente no momento em que a escada está prestes a ficar livre.
+- A escada consegue acolher inúmeros usuários ("largura ilimitada", está descrito no usuário)
+
+PROCESSAMENTO DE CADA USUÁRIO:
+- Tempo de Ocupação: Para cada usuário, o programa adiciona 10 segundos ao tempo de chegada 
+(tempoChegada) para calcular quando a escada estará ocupada.
+
+GERENCIAMENTO DE DIREÇÕES: 
+O código também gerencia a mudança de direção da escada e possíveis esperas, caso usuários com direções 
+diferentes cheguem enquanto a escada ainda está ocupada.
+
+CONTROLE DE ULTIMO MOMENTO: 
+O código rastreia e atualiza o último momento em que a escada estará ocupada, considerando todos os usuários e as mudanças realizadas na direção da escada.
+
+RESULTADO
+Baseando-se no maior tempo de ocupação registrado durante o processamento de todos os usuários, é retornado para o usuário
+o o último momento ocupado da escada rolante.
+
 
 ############################################
       COMPILAÇÃO E EXECUÇÃO DO CÓDIGO
 ############################################
 
 O código foi compilado pelo AWS usando o GCC pelo seguinte comando:
-
 "gcc proj2.c -o proj2" - (está demonstrado na print)
 
 E o programa pode ser executado do seguinte modo:
-
 "./proj2"
 
 PARA A OPÇÃO 2, A ENTRADA DO ARQUIVO PODE SER FEITA DA SEGUINTE FORMA:
-
 "input/<nome arquivo>" - (não precisa necessáriamente da extensão)
 
 Exemplo:
 input/E_1
 
-#################################
-	LÓGICA DO CÓDIGO
-#################################
-
-O código-fonte é dividido em três partes principais:
-
-- VERIFICANDO A ENTRADA: 
-A função InteiroValido é usada para garantir que as entradas sejam números inteiros válidos.
-
-- PROCESSANDO A ENTRADA ITERATIVA: 
-A função ProcessarEntradaInterativa permite ao usuário inserir os detalhes das pessoas interativamente e calcula o último momento em que a escada para.
-
-- PROCESSANDO A ENTRADA PELO ARQUIVO: 
-A função ProcessarEntradaArquivo lê as informações de um arquivo de texto e calcula o último momento em que a escada para.
-
-#################################
-	LÓGICA DO CÁLCULO
-#################################
-
-Foi discutido em grupo e elaborada a seguinte solução:
-
-- A escada rolante leva 10 segundos para transportar uma pessoa de uma extremidade à outra.
-- Se uma pessoa entrar na escada no momento T, ela sairá no momento T + 10.
-- Nenhuma pessoa chega exatamente quando a escada está prestes a parar.
-
-Logo, recebe-se o número de pessoas (N) e as informações de chegada e direção de cada pessoa.
-
-Para cada pessoa, o código calcula o momento em que a escada para com base no momento de chegada da pessoa (t_i).
-
-O momento em que a escada para, é calculado adicionando 10 segundos ao momento de chegada da pessoa. 
-(O código mantém o controle do maior momento de parada encontrado até agora)
-
-O resultado é o último momento em que a escada para, que é o maior momento de parada encontrado durante o processamento das informações das pessoas.
-
-Finalmente, o resultado é impresso, mostrando o último momento em que a escada para.
 
 #################################
             CONCLUSÃO
 #################################
 
-Mesmo colocando no papel, revendo o enunciado diversas vezes, buscando soluções com diversas ferramentas, nem todos os resultados
-puderam ser obtidos.
+Aplicando a lógica correta do gerenciamento das pessoas na escada rolante, 
+foi possível atingir os resultados esperados.
 
-Alguns resultados do programa não são coerentes com o output fornecido para testes. Analisamos diversas abordagens, formas de acompanhar o estado da escada rolante, a abordagem adotada foi a que tivemos melhor resultado.
 
 

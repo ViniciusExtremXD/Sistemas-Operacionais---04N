@@ -1,3 +1,9 @@
+/*
+Davi Rodrigues - 32266960 
+Matheus Mendes - 32261527 
+Vinícius Magno - 32223201
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
