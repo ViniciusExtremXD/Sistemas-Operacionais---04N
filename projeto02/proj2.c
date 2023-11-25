@@ -1,109 +1,150 @@
-/*
-Davi Rodrigues - 32266960
-Matheus Mendes - 32261527
-Vinícius Magno - 32223201
-*/
-
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-/*############################################
-            VERIFICANDO ENTRADA
-#############################################*/
-int InteiroValido(const char* prompt) {
-    int value;
-    while (1) {
-        printf("%s", prompt);
-        if (scanf("%d", &value) == 1) {
-            return value;
-        } else {
-            printf("\nEntrada inválida. Por favor, digite um número inteiro.\n");
-            while (getchar() != '\n');
-        }
+typedef struct {
+  int tempoChegada;
+  int direcao;
+} Usuario;
+
+/*##################################################
+      CALCULO PRINCIPAL PARA O USO DA ESCADA
+##################################################*/
+void processarUsoEscada(int qtdUsuarios, Usuario usuarios[]) {
+  // Inicialização das variáveis
+  int tempoFinal = usuarios[0].tempoChegada + 10, flagEspera = 0, direcaoAtual = usuarios[0].direcao;
+
+  // Loop principal para processar o uso da escada
+  for (int i = 1; i < qtdUsuarios; i++) {
+    if (usuarios[i].tempoChegada <= tempoFinal) {
+      if (usuarios[i].direcao == direcaoAtual) {
+        tempoFinal = usuarios[i].tempoChegada + 10;
+      } else {
+        flagEspera = 1;
+      }
+
+      // Usuário conseguiu usar a escada imediatamente
+    } else {
+      if (flagEspera) {
+        tempoFinal += 10;
+        direcaoAtual = !direcaoAtual;
+        i--;
+
+        // Houve espera e a direção da escada mudou
+      } else {
+        tempoFinal = usuarios[i].tempoChegada + 10;
+        direcaoAtual = usuarios[i].direcao;
+      }
+      flagEspera = 0;
     }
+  }
+
+  // Tratamento final para garantir que a escada esteja livre
+  if (flagEspera) {
+    tempoFinal += 10;
+  }
+
+  // Retornando para o usuário o último momento da escada
+  printf("\nÚltimo momento da escada: %d\n", tempoFinal);
 }
 
 /*##################################################
-    PROCESSANDO A ENTRADA FORNECIDA PELO USUÁRIO
-####################################################*/
-void ProcessarEntradaInterativa() {
-    int N, i;
-    int ultimoMomento = 0;
-    N = InteiroValido("Digite o número de pessoas (N): ");
+      PROCESSANDO A ENTRADA DE FORMA ITERATIVA
+##################################################*/
+void entradaInterativa() {
+  // Obtém o número de usuários
+  int numUsuarios;
+  printf("Digite o número de usuários: ");
+  if (scanf("%d", &numUsuarios) != 1) {
+    printf("Insira um valor válido.\n");
 
-    for(i = 0; i < N; i++) {
-        int e, d;
-        printf("Digite o momento de chegada (e) e a direção (d) da pessoa %d (separados por espaço): ", i+1);
-        scanf("%d %d", &e, &d);
-        if (e + 10 > ultimoMomento) {
-            ultimoMomento = e + 10;
-        }
+    // Limpa o buffer de entrada
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
+    return;
+  }
+
+  // Verifica se o número de usuários é válido
+  if (numUsuarios <= 0) {
+    printf("Insira um valor válido.\n");
+    return;
+  }
+
+  Usuario usuarios[numUsuarios];
+
+  // Coleta os dados dos usuários
+  for (int i = 0; i < numUsuarios; i++) {
+    printf("Digite o tempo de chegada e a direção para o usuário %d: ", i + 1);
+    if (scanf("%d %d", &usuarios[i].tempoChegada, &usuarios[i].direcao) != 2) {
+      printf("Entrada inválida. Voltando para o menu principal.\n");
+
+      // Limpa o buffer de entrada
+      int c;
+      while ((c = getchar()) != '\n' && c != EOF);
+
+      return;
     }
+  }
 
-    printf("O último momento em que a escada para é: %d\n", ultimoMomento);
+  // Chama a função de processamento da escada
+  processarUsoEscada(numUsuarios, usuarios);
 }
 
-/*#########################################################
-      PROCESSANDO A ENTRADA A PARTIR DE UM ARQUIVO.TXT
-###########################################################*/
-void ProcessarEntradaArquivo(const char *nomeArquivo) {
-    FILE *file;
-    int N, i;
-    int ultimoMomento = 0;
+/*##################################################
+     MÉTODO PARA PROCESSAR A PARTIR DO ARQUIVO    
+##################################################*/
+void entradaArquivo() {
+  char nomeArquivo[100];
+  printf("Digite o nome do arquivo: ");
+  scanf("%s", nomeArquivo);
 
-    file = fopen(nomeArquivo, "r");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
+  // Abre o arquivo especificado
+  FILE *arquivo = fopen(nomeArquivo, "r");
+  if (!arquivo) {
+    perror("Arquivo não encontrado!\n");
+    return;
+  }
 
-    fscanf(file, "%d", &N);
+  // Lê o número de usuários e seus dados do arquivo
+  int numUsuarios;
+  fscanf(arquivo, "%d", &numUsuarios);
+  Usuario usuarios[numUsuarios];
 
-    for(i = 0; i < N; i++) {
-        int e, d;
-        fscanf(file, "%d %d", &e, &d);
-        if (e + 10 > ultimoMomento) {
-            ultimoMomento = e + 10;
-        }
-    }
+  for (int i = 0; i < numUsuarios; i++) {
+    fscanf(arquivo, "%d %d", &usuarios[i].tempoChegada, &usuarios[i].direcao);
+  }
+  fclose(arquivo);
 
-    fclose(file);
-
-    printf("O último momento em que a escada para é: %d\n", ultimoMomento);
+  // Chama a função de processamento da escada
+  processarUsoEscada(numUsuarios, usuarios);
 }
 
-/*############################################
-            IMPLEMENTANDO O MAIN
-#############################################*/
+/*##################################################
+         IMPLEMENTANDO O MAIN + MENU
+##################################################*/
 int main() {
-    int escolha;
-    char nomeArquivo[100];
+  int escolha = 0;
+  while (1) {
+    // Menu de seleção
+    printf("\n##############################\nSelecione o método de entrada:\n1. Interativo\n2. Arquivo\n3. Sair\n##############################\n\nSua escolha: ");
+    scanf("%d", &escolha);
 
-    while (1) {
-        printf("\nEscolha o método de entrada:\n");
-        printf("\n1. Entrada interativa\n");
-        printf("2. Ler de um arquivo\n");
-        printf("3. Sair do programa\n");
-        printf("\nDigite sua escolha (1, 2 ou 3): ");
-        scanf("%d", &escolha);
+    // Executa a ação com base na escolha do usuário
+    if (escolha == 1) {
+      entradaInterativa();
+    } else if (escolha == 2) {
+      entradaArquivo();
+    } else if (escolha == 3) {
+      printf("Encerrando o programa.\n");
+      break;
+    } else {
+      printf("Opção inválida. Tente novamente.\n");
 
-        switch (escolha) {
-            case 1:
-                ProcessarEntradaInterativa();
-                break;
-            case 2:
-                printf("Digite o nome do arquivo: ");
-                scanf("%s", nomeArquivo);
-                ProcessarEntradaArquivo(nomeArquivo);
-                break;
-            case 3:
-                printf("Encerrando o programa.\n");
-                return 0;
-            default:
-                printf("Opção inválida. Tente novamente.\n");
-        }
+      // Limpa o buffer de entrada
+      int c;
+      while ((c = getchar()) != '\n' && c != EOF);
     }
-
-    return 0;
+  }
+  return 0;
 }
 
